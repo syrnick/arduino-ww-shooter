@@ -3,7 +3,7 @@
 #include <Servo.h>
 
 #include <ros.h>
-#include <wiff_waff/HopperGoal.h>
+#include <whiff_waff/HopperGoal.h>
 
 // Create the motor shield object with the default I2C address
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
@@ -23,28 +23,28 @@ const int POS_OPEN_ENOUGH=20;
 
 int servo_position=0;
 int target_servo_position=0;
-robot_pong::HopperGoal active_goal;
+whiff_waff::HopperGoal active_goal;
 
 const int SHOOT_OPEN=0;
 const int SHOOT_CLOSE=1;
 const int SHOOT_READY=2;
 int shoot_state = 0;
 
-void messageCb( const robot_pong::HopperGoal& goal_msg){
+void messageCb( const whiff_waff::HopperGoal& goal_msg){
   active_goal = goal_msg;
-  if( active_goal.action == robot_pong::HopperGoal::ACTION_OFF ){
+  if( active_goal.action == whiff_waff::HopperGoal::ACTION_OFF ){
     servo1.detach();
   }else{
     if(!servo1.attached()) servo1.attach(9);
 
     switch( active_goal.action ){
-    case robot_pong::HopperGoal::ACTION_LOCK:
+    case whiff_waff::HopperGoal::ACTION_LOCK:
       target_servo_position = POS_LOCK_ONLY;
       break;
-    case robot_pong::HopperGoal::ACTION_OPEN:
+    case whiff_waff::HopperGoal::ACTION_OPEN:
       target_servo_position = POS_FULL_OPEN;
       break;
-    case robot_pong::HopperGoal::ACTION_SHOOT:
+    case whiff_waff::HopperGoal::ACTION_SHOOT:
       target_servo_position = POS_OPEN_ENOUGH;
       shoot_state=SHOOT_OPEN;
       break;
@@ -52,13 +52,13 @@ void messageCb( const robot_pong::HopperGoal& goal_msg){
   }
 }
 
-ros::Subscriber<robot_pong::HopperGoal> goal_sub("hopper_goal", &messageCb );
+ros::Subscriber<whiff_waff::HopperGoal> goal_sub("hopper_goal", &messageCb );
 
 void setup() {
 
   AFMS.begin();  // create with the default frequency 1.6KHz
 
-  active_goal.action = robot_pong::HopperGoal::ACTION_OFF;
+  active_goal.action = whiff_waff::HopperGoal::ACTION_OFF;
   servo_position=0;
   target_servo_position=0;
 
@@ -76,7 +76,7 @@ void loop() {
   }
 
   servo1.write(map(servo_position, 0, 255, servo_low_angle, servo_high_angle));
-  if( active_goal.action == robot_pong::HopperGoal::ACTION_SHOOT && servo_position == target_servo_position ){
+  if( active_goal.action == whiff_waff::HopperGoal::ACTION_SHOOT && servo_position == target_servo_position ){
      if( shoot_state == SHOOT_OPEN ){
         delay(300);
         target_servo_position = POS_FULL_FWD;
